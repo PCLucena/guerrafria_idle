@@ -10,8 +10,8 @@ public class Buildings {
 
 	public Buildings() {
 		buildings = new int[]{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		buildingCost = new int[]{ 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
-		buildingInfluence = new float[]{ 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+        buildingCost = new int[]{ 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+		buildingInfluence = new float[]{ 1, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
 	}
 
 	public void constroyBuilding(int buildingNum) {
@@ -19,7 +19,18 @@ public class Buildings {
 		influencyPerSecond = totalInfluence ();
 	}
 
-	public int getBuildingCost(int buildingNum) {
+    public void setBuildingNum(int buildingNum, int buildingNumCount)
+    {
+        buildings[buildingNum] = buildingNumCount;
+        influencyPerSecond = totalInfluence();
+    }
+
+    public int getBuildingNum(int buildingNum)
+    {
+        return buildings[buildingNum];
+    }
+
+    public int getBuildingCost(int buildingNum) {
 		return buildingCost [buildingNum];
 	}
 

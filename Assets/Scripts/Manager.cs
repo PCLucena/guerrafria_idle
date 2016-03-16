@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System;
 
 public class Manager : MonoBehaviour {
 	[SerializeField]
@@ -8,12 +9,23 @@ public class Manager : MonoBehaviour {
 
 	Player player;
 	Buildings buildings;
+    Boolean offFocus;
 
 	void Awake() {
 		player = new Player ();
 		buildings = new Buildings ();
-		PlayerPrefs.SetFloat ("focusTime", Time.time);
-		Debug.Log("Awake");
+
+
+        int inf = PlayerPrefs.GetInt("influence");
+        if(inf > 0) player.setInfluence(inf);
+
+
+        int buildingsCount = PlayerPrefs.GetInt("buildings");
+        if( buildingsCount>0 ) buildings.setBuildingNum(0, buildingsCount);
+
+        offFocus = true;
+
+        Debug.Log("Awake");
 	}
 
 	void Start () {
@@ -21,14 +33,17 @@ public class Manager : MonoBehaviour {
 	}
 
 	void Update () {
-		score.text = "Influency: " + (int)player.getInfluence();
-		player.addInfluence (Time.deltaTime * buildings.getInfluencyPerSecond());
-		Debug.Log("Tempo real = " + Time.time);
+        if (!offFocus)
+        {
+            player.addInfluence(Time.deltaTime * buildings.getInfluencyPerSecond());
+
+            score.text = "Influency: " + (int)player.getInfluence();
+        }
 	}
 
 	public void onClick() {
-		player.addInfluence (1);
-	}
+		player.addInfluence (1);        
+    }
 
 	public void onBuy(int nome) {
 		if (player.getInfluence () >= buildings.getBuildingCost (nome)) {
@@ -41,18 +56,35 @@ public class Manager : MonoBehaviour {
 	void OnApplicationFocus(bool focusStatus) {
 		
 		if (!focusStatus) {
-			PlayerPrefs.SetFloat ("focusTime", Time.time);
-			Debug.Log("(if) Tempo quando parou = " + PlayerPrefs.GetFloat ("focusTime"));
+
+            Debug.Log("OUT");
+
+            offFocus = true;
+            PlayerPrefs.SetString("focusTime", DateTime.Now.ToString());
 
 		} else {
-			Debug.Log ("(else) Tempo quando parou = " + PlayerPrefs.GetFloat ("focusTime"));
 
-			player.addInfluence ((Time.time - PlayerPrefs.GetFloat ("focusTime")) * buildings.getInfluencyPerSecond ());
-		
-		}
+            Debug.Log("IN");
+
+            offFocus = false;
+            String date = PlayerPrefs.GetString("focusTime");
+            
+            if(date != "defaultValue")
+            {
+                TimeSpan ts = DateTime.Now - Convert.ToDateTime(date) ;
+                Debug.Log( ts.TotalSeconds );
+
+                player.addInfluence((float) ts.TotalSeconds * buildings.getInfluencyPerSecond());
+            }
+            
+        }
 	}
 
 	void OnApplicationQuit() {
-		
-	}
+        PlayerPrefs.SetString("focusTime", DateTime.Now.ToString());
+        PlayerPrefs.SetInt("buildings",buildings.getBuildingNum(0));//<<<<<<<<<<
+
+        PlayerPrefs.SetInt("influence", (int) player.getInfluence() );
+
+    }
 }

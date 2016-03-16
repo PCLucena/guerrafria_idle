@@ -16,4 +16,9 @@ public class Player {
 	public float getInfluence() {
 		return playerInfluence;
 	}
+
+    public void setInfluence(float influence)
+    {
+        playerInfluence = influence;
+    }
 }
